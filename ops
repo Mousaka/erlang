@@ -1,0 +1,4 @@
+-module(operation).
+-export([addi/1]).
+
+addi(N) -> N + 1.
