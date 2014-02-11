@@ -21,3 +21,13 @@ test_ring_time() ->
 	
 test_double_server() ->
 	double_server:start_ALL().
+	
+test_store() ->
+	store:start(),
+	store:store(hej, hello),
+	hello = store:fetch(hej),
+	store:crash(master),
+	hello = store:fetch(hej),
+	store:store(hejda, bye),
+	bye = store:fetch(hejda),
+	yay.
