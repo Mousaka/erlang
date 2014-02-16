@@ -1,0 +1,3 @@
+{port,200}.
+{hostname,"www.goole.com"}.
+{interval,10}.
