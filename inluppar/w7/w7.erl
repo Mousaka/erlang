@@ -69,6 +69,37 @@ reverse_bytes(File) ->
 	file:pwrite(W, 0 , Reversed),
 	file:close(W).	
 
-%compute_digest(File, Blocksize) ->
+compute_digest(File, Blocksize) ->
+	Len = filelib:file_size(File),
+	X = {size, Len, blocksize, Blocksize, cheksums, make_blocks(0, File, Blocksize, [])},
+	{ok, S} = file:open(File ++ ".digest", [write]),
+	io:format(S, "~p.~n", [X]),
+	file:close(S).
+	
+check_digest(File) ->
+	[L] = consult(File++".digest"),
+	{_, _, blocksize, Blocksize, _ , _} = L,
+	Len = filelib:file_size(File),
+	X = {size, Len, blocksize, Blocksize, cheksums, make_blocks(0, File, Blocksize, [])},
+	
+	case X==L of
+		true ->
+			checks_out;
+		false ->
+			wrong_file
+	end.
+	
+make_blocks(N, File, Blocksize, R) ->
+	Len = filelib:file_size(File),
+	case N+1>Len of
+		false ->
+			{ok, S} = file:open(File, [read, binary, raw]),
+			{ok, Bin} = file:pread(S, N, Blocksize),
+			file:close(S),
+			make_blocks(N+Blocksize, File, Blocksize,[erlang:md5(Bin)|R]);
+		true ->
+			R
+	end.
+		
 print(X) ->
    io:format("~p~n",[X]).

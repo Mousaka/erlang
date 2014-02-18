@@ -32,9 +32,19 @@ t8() ->
 	
 	success.
 	
+t7() ->
+	file:write_file("abc",<<"0123456789">>),
+	w7:compute_digest("abc", 4),
+	true = filelib:is_file("abc.digest"),
+	checks_out = w7:check_digest("abc"),
+	
+	
+	
+	yes.
+	
 	
 sleep() ->
 	receive
-		after 500 ->
+		after 200 ->
 			true
 	end.
