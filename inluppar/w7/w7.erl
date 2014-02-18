@@ -59,5 +59,16 @@ make_file_tuples([H|T], R) ->
 			 make_file_tuples(T, [{dir, H}|R])
 	end.
 	
-	
-	
+reverse_bytes(File) ->
+	Len = filelib:file_size(File),
+	{ok, S} = file:open(File, [read, binary, raw]),
+	{ok, Bin} = file:pread(S, 0, Len),
+	Reversed = binary:list_to_bin(lists:reverse(binary:bin_to_list(Bin))),
+	file:close(S),
+	{ok, W} = file:open(File, [write, binary, raw]),
+	file:pwrite(W, 0 , Reversed),
+	file:close(W).	
+
+%compute_digest(File, Blocksize) ->
+print(X) ->
+   io:format("~p~n",[X]).
