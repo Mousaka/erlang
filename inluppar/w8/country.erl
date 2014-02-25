@@ -1,6 +1,49 @@
 -module(country).
 -compile(export_all).
 
+-include_lib("stdlib/include/qlc.hrl").
+
+-record(country_code, {code, country}).
+
+%%MNESIA
+
+do_this_once() ->
+    mnesia:create_schema([node()]),
+    mnesia:start(),
+    mnesia:create_table(country_code,   [{attributes, record_info(fields, country_code)}]),
+    mnesia:stop().
+
+start_mnesia() ->
+    mnesia:start(),
+    mnesia:wait_for_tables([country_code], 20000),
+	{ok, L} = file:consult("country_codes.txt"),
+	insert_mnesia(L).
+	
+insert_mnesia([]) -> ok;
+insert_mnesia([{A,B}|T]) ->
+	add_country(A, B),
+	insert_mnesia(T).
+	
+add_country(Code, Country) ->
+    Row = #country_code{code=Code, country =Country},
+    F = fun() ->
+		mnesia:write(Row)
+	end,
+    mnesia:transaction(F).
+
+remove_country(Country) ->
+    Oid = {country_code, Country},
+    F = fun() ->
+		mnesia:delete(Oid)
+	end,
+    mnesia:transaction(F).
+get_value(Key) ->
+    F = fun() -> mnesia:read({country_code, Key}) end,
+    {atomic, [{country_code, Code, Country}]} = mnesia:transaction(F),
+	{Code, Country}.
+
+
+%%ETS	
 start_ETS() ->
 	ETS = ets:new(country_codes, [set, named_table]),
 	read_data(ETS, "country_codes.txt"),
@@ -21,7 +64,7 @@ lookup(ETS, Code) ->
 		[] -> error;
 		[X] -> X
 	end.
-
+%%DETS
 time_make_rand_DETS() ->
 	{X,_} = timer:tc(country, make_rand_DETS, []),
 	print(["Time in sec", X/1000000]).

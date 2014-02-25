@@ -2,14 +2,18 @@
 -compile(export_all).
 
 start() -> 
-	%P = spawn(tracker, loop, []),
+	
 	gen_server:start_link({local, gen_tracker}, tracker, {[], dict:new()}, []).
+	
+	%print(["hm"]),
+	%%loop().
 
-loop() ->
-	sleep(1000),
-	%print([ping]),
-	i_want(filen, "23.22"),
-	loop().
+%%loop() ->              Förstår inte hur man ska lösa ping-grejen!!!
+%%	sleep(1000),
+%%	print([ping]),
+%%	gen_server:call(gen_tracker, {i_want, file, "123"}),
+%%	loop().
+	
 read() -> gen_server:call(gen_tracker, read).
 init(N) ->
 	{ok, N}.
@@ -19,8 +23,8 @@ i_am_leaving(IP) -> gen_server:call(gen_tracker, {leaving, IP}).
 who_wants(File) -> gen_server:call(gen_tracker, {who_wants, File}).
 ping(IP) -> gen_server:call(gen_tracker, {ping, IP}).
 
-handle_info(Info, State) ->
-	print("infoo").
+handle_cast(Msg, State) ->
+	{noreply, State}.
 
 handle_call(read, _From, {Active,State}) -> {reply, {Active,State}, {Active,State}};
 handle_call({who_wants, File}, _From, {Active,State}) ->
