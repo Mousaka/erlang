@@ -1,7 +1,7 @@
 -module(country).
 -compile(export_all).
 
-start() ->
+start_ETS() ->
 	ETS = ets:new(country_codes, [set, named_table]),
 	read_data(ETS, "country_codes.txt"),
 	ETS.
